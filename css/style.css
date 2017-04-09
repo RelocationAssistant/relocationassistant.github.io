@@ -1,0 +1,18 @@
+body {
+  background-color: #1A5276;
+  color: #FFE0B2;
+}
+h1 {
+  font-family: 'Poiret One', cursive;
+  font-size: 100px;
+}
+h2 {
+  font-family: 'Poiret One', cursive;
+  font-size: 50px;
+}
+.title {
+  width: 50%;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
