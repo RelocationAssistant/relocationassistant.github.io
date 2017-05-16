@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: App.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: App.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { Component } from 'react';
+
+import { Redirect, Link } from 'react-router-dom';
+import {browserHistory} from 'react-router';
+import PropTypes from 'prop-types';
+
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import getMuiTheme from 'material-ui/styles/getMuiTheme'
+import MenuItem from 'material-ui/MenuItem';
+import AppBar from 'material-ui/AppBar';
+import Drawer from 'material-ui/Drawer';
+import {lightBlue800} from 'material-ui/styles/colors';
+import IconButton from 'material-ui/IconButton';
+import NavigationClose from 'material-ui/svg-icons/navigation/close';
+import MenuIcon from 'material-ui/svg-icons/navigation/menu';
+import FlatButton from 'material-ui/FlatButton';
+import LockIcon from 'material-ui/svg-icons/action/lock';
+
+const muiTheme=getMuiTheme({
+  palette: {
+    primary1Color: lightBlue800,
+  },
+  appBar: {
+    height: 70,
+  },
+});
+
+/**
+ * App Component (Main Parent Component), 
+ * It is the parent component of the application.
+ * It comtains the Menu and Drawer component 
+ * and the rest of the components are loaded within this component
+ */
+export default class App extends Component {
+
+  constructor() {
+    super();
+    this.state={
+    };
+  }
+
+  handleToggle=() => this.setState({open: !this.state.open});
+  handleClose=() => this.setState({open: false});
+
+
+  static childContextTypes =
+  {
+      muiTheme: PropTypes.object
+  }
+
+  getChildContext()
+  {
+      return {
+          muiTheme: getMuiTheme()
+      }
+  }
+
+    componentDidMount() {
+     
+        this.attachTooltip();
+    }
+
+    componentDidUpdate() {
+        this.attachTooltip();
+    }
+
+    attachTooltip = () => {
+    // $(this.refs.data).tooltip();
+    $('[title]').tooltip()    
+    }
+
+
+
+  render() {
+
+    return (
+      &lt;div className="container">        
+        &lt;MuiThemeProvider muiTheme={getMuiTheme(muiTheme)}>
+          &lt;AppBar
+            className="AppBar"
+            iconElementLeft={&lt;div>
+              &lt;FlatButton
+                icon={&lt;MenuIcon className="MenuIcon" />}
+                onTouchTap={this.handleToggle}
+                data-toggle="tooltip" data-placement="bottom" title="Menu"
+              />
+              &lt;Link to="/">
+                &lt;FlatButton 
+                    label="Relocation Assistant" 
+                    className="AppBarTitle"
+                />
+              &lt;/Link>
+              &lt;/div>
+            }
+                
+            iconElementRight={
+                &lt;div>
+                    &lt;Link to="/login">
+                        &lt;IconButton data-toggle="tooltip" data-placement="left" title="Sign in"> &lt;LockIcon /> &lt;/IconButton>
+                    &lt;/Link>
+                &lt;/div>
+            }
+          />
+        &lt;/MuiThemeProvider>
+
+        &lt;MuiThemeProvider muiTheme={getMuiTheme(muiTheme)}>
+          &lt;Drawer
+            className="MainDrawer"
+            docked={false}
+            width={250}
+            open={this.state.open}
+            onRequestChange={(open) => this.setState({open})}
+          >
+            &lt;AppBar title="Menu"
+              onLeftIconButtonTouchTap={this.handleToggle}
+              iconElementLeft={&lt;IconButton
+                                data-toggle="tooltip" data-placement="bottom" title="Close Menu"
+                                >&lt;NavigationClose />
+                               &lt;/IconButton>}
+            />
+
+            &lt;Link to="/" >
+              &lt;MenuItem onTouchTap={this.handleClose}>Home&lt;/MenuItem>
+            &lt;/Link>
+
+            &lt;Link to="/profile" >
+              &lt;MenuItem onTouchTap={this.handleClose}>Profile&lt;/MenuItem>
+            &lt;/Link>
+
+           
+
+          &lt;/Drawer>
+        &lt;/MuiThemeProvider>
+      &lt;/div>
+    );
+  }
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#CrimeReport">CrimeReport</a></li><li><a href="global.html#Dashboard">Dashboard</a></li><li><a href="global.html#Error404">Error404</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#HouseListing">HouseListing</a></li><li><a href="global.html#JobInfo">JobInfo</a></li><li><a href="global.html#JobMap">JobMap</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#Logout">Logout</a></li><li><a href="global.html#NewsCarousel">NewsCarousel</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#Schools">Schools</a></li><li><a href="global.html#SignUp">SignUp</a></li><li><a href="global.html#WeatherAlerts">WeatherAlerts</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Tue May 16 2017 14:41:40 GMT-0400 (EDT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
