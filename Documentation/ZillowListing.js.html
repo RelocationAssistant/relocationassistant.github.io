@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Home</title>
+    <title>JSDoc: Source: ZillowListing.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,32 +17,61 @@
 
 <div id="main">
 
-    <h1 class="page-title">Home</h1>
+    <h1 class="page-title">Source: ZillowListing.js</h1>
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React from 'react';
+import ReactDOM from 'react-dom';
+
+import Paper from 'material-ui/Paper';
+import RaisedButton from 'material-ui/RaisedButton';
+import FlatButton from 'material-ui/FlatButton';
+import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
+
+/**
+ * House Listing Component, 
+ * This component loads the details of property prices based on the Job location on the Dashboard.
+*/
+export default class HouseListing extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            jobDetails: [],
+		};
+    }
+
+    componentWillMount() {
+
+		this.setState({
+			jobDetails: this.props.JobDetails,
+		});
+    }
 
 
-    <h3> </h3>
+    render() {
+      return(
+        &lt;div className="col-md-12 dashboard-component">
+            &lt;Paper className="dashboard-houses-component dashboard-paper" zDepth={1}>
 
+            &lt;div id="zillow-large-search-box-widget-container" >
 
+                &lt;iframe scrolling="yes" src={`https://www.zillow.com/widgets/search/LargeSearchBoxWidget.htm?did=zillow-large-search-box-iframe-widget&amp;type=iframe&amp;rgname=${this.props.JobDetails.city}+${this.props.JobDetails.state}&amp;shvi=yes`}  frameborder="0" >&lt;/iframe>
+            
+            &lt;/div>
 
-
-
-
-
-
-
-
-    
-
-
-
-
-
+            &lt;/Paper>   
+        &lt;/div>
+      )
+    }
+};</code></pre>
+        </article>
+    </section>
 
 
 

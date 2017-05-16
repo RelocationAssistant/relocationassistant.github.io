@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Home.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Home.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { Component } from 'react';
+
+import { Redirect, Link } from 'react-router-dom';
+
+// Load JSON File
+// import JOBLIST from '../data/IndeedApiResponse.json';
+
+import axios from 'axios';
+import cookie from 'react-cookie';
+
+// UI Components
+import Paper from 'material-ui/Paper';
+import getMuiTheme from 'material-ui/styles/getMuiTheme'
+import {Card, CardActions, CardHeader, CardTitle, CardText} from 'material-ui/Card';
+import FlatButton from 'material-ui/FlatButton';
+import TextField from 'material-ui/TextField';
+import SearchIcon from 'material-ui/svg-icons/action/search';
+import IconButton from 'material-ui/IconButton';
+import FloatingActionButton from 'material-ui/FloatingActionButton';
+import Snackbar from 'material-ui/Snackbar';
+
+import {red900, green900, blue900, orange500, green500, blue500} from 'material-ui/styles/colors';
+
+import RaisedButton from 'material-ui/RaisedButton';
+import {fullWhite} from 'material-ui/styles/colors';
+import FontIcon from 'material-ui/FontIcon';
+
+
+import { ValidatorForm, TextValidator} from 'react-material-ui-form-validator';
+
+
+const styles = {
+    hintStyle: {
+        fontSize: 16 
+    },
+    // errorStyle: {
+    //     color: orange500,
+    // },
+    // underlineStyle: {
+    //     borderColor: orange500,
+    // },
+    floatingLabelStyle: {
+        color: blue500,
+        fontSize: 20,
+    },
+    floatingLabelFocusStyle: {
+        color: blue500,
+        fontSize: 20,
+    },
+    floatingLabelShrinkStyle: {
+        fontSize: 20,
+        color: blue500,
+    },
+};
+
+const btnSearch = {
+    margin: 10,
+    backgroundColor: blue500,
+};
+
+/**
+ * Home Page Component, 
+ * used for searching Job Postings.
+ */
+export default class Home extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            jobList: [],
+            input: {
+                job: "",
+                location: "",
+            },
+            displayMessage: "",
+            openSnackBar: false,
+            username: "",
+            notLoggedIn: false,
+        };
+        this.handleChange = this.handleChange.bind(this);
+    }
+
+
+    /**
+     * Function to get the location of the User
+     * @memberof src.Components.Home
+     */  
+    getUserLocation=() => {
+
+        axios.get(`http://ipinfo.io`)
+        .then(response => {
+        console.log('SUCCESS- IP: ', response);
+		this.setState({
+			input: {
+                location: `${response.data.region}`,
+                job: ""
+            }
+		});
+        })
+        .catch(error => {
+        console.log('Error fetching and parsing LOCATION data', error);
+        });
+    }
+
+    /**
+     * Function to get the list of Job Postings
+     * @memberof src.Components.Home
+     */ 
+    getJobPostings=() => {
+        console.log('Geting Data for Job postings...!');
+        console.log('Job= ', this.state.input.job);
+        console.log('Location= ', this.state.input.location);
+
+        var query = (this.state.input.job == "" ? " " : this.state.input.job);
+        var loc = (this.state.input.location == "" ? " " : this.state.input.location);
+
+        axios.get(`http://107.170.61.145/api/services/indeed/search?q=${this.state.input.job}&amp;l=${this.state.input.location}`,{
+            auth: {
+                username: cookie.load('token'),
+                password: 'unused',
+            }
+        })
+        .then(response => {
+            console.log('SUCCESS', response);
+            this.setState({
+            jobList: response.data.results,
+            });
+        })
+        .catch(error => {
+            console.log('Error fetching and parsing data', error);
+            alert('There was an error processing your request. Please try again.')
+        });
+    }
+
+	componentWillMount() {
+
+        if (cookie.load('token') == null) {
+            this.setState({
+                notLoggedIn: true,
+            })
+        }
+
+        this.getUserLocation();
+
+        console.log('Location= ', this.state.input.location);
+
+        var user_name = cookie.load('username') != null ? cookie.load('username') : "";
+        // var user_name = "";
+        
+
+        this.setState({
+            username: user_name,
+        })
+
+        this.setState({
+            openSnackBar: false,
+        })
+
+	}
+
+    handleChange(event) {
+        const { input } = this.state;
+        input[event.target.name] = event.target.value;
+        this.setState({ input });
+    }
+
+    handleSubmit() {
+
+    }
+
+    componentDidMount() {
+        // console.log('Posting: ', this.state.jobList);
+        // console.log('Location= ', this.state.input.location);
+
+        this.attachTooltip();
+
+        
+
+
+	}
+
+	updateSearchText = (event) => {
+        const { input } = this.state;
+        input[event.target.name] = event.target.value;
+        this.setState({ input });
+	}
+
+
+    componentDidUpdate() {
+        this.attachTooltip();
+    }
+
+    attachTooltip = () => {
+    // $(this.refs.data).tooltip();
+    $('[title]').tooltip()    
+    }
+
+    /**
+     * Used for Material-UI
+     */
+	static childContextTypes = {muiTheme: React.PropTypes.object}
+	getChildContext(){return {muiTheme: getMuiTheme()}}
+
+
+    /**
+     * Render Function to render the component to DOM
+     * @memberof src.Components.Home
+     */
+	render() {
+        const { input } = this.state;
+
+        var JobPostings = &lt;div className="col-md-12 container-fluid text-center no-result-found"
+                                style={{display: this.state.displayMessage}}> &lt;/div>;
+
+        var notLoggedInButton = null;
+        if (this.state.notLoggedIn) {
+            notLoggedInButton = &lt;Redirect to="/Login" />;
+        }                                
+
+        if (this.state.jobList.length > 1) {
+
+            JobPostings = 
+            this.state.jobList.map( (row, index) => (
+            &lt;div className="col-md-4 col-sm-6 col-xs-12 jobSearchCard" key={index}>
+                &lt;Card>
+                    &lt;CardHeader
+                    title={row.company}
+                    subtitle={row.date.substr(0, 17)}
+                    titleStyle={{fontWeight:'bold'}}
+                    />
+
+                    &lt;CardTitle 
+                    title={`${row.jobtitle.substr(0, 30)}...`} 
+                    className="searchResultCardTitle"
+                    subtitle={`${row.city}, ${row.state}`} 
+                    />
+                    
+                    &lt;CardText>
+                        {`${row.snippet.replace(/&lt;\/?[^>]+(>|$)/g, "").replace("...", "").substr(0, 100)}...`}
+                    &lt;/CardText>
+                    &lt;CardActions>
+                        &lt;Link to={`/Dashboard/${row.jobkey}`} >&lt;FlatButton label="Details" data-toggle="tooltip" data-placement="top" title={`More details for this job posting`} />&lt;/Link>
+                        &lt;a target="_blank" href={row.url} >&lt;FlatButton data-toggle="tooltip" data-placement="top" title={`Apply at Indeed.com`} label="Apply" />&lt;/a>
+                    &lt;/CardActions>
+                &lt;/Card>
+            &lt;/div>
+            ))
+        }
+        else {
+            &lt;div className="col-md-12 container-fluid text-center "
+                                > No results found &lt;/div>
+        }
+
+
+		return (
+			&lt;div className="col-md-12 body-content">
+                &lt;div className="ButtonToRedirect">{notLoggedInButton}&lt;/div>
+
+                &lt;div className='searchContainer'>
+
+                    &lt;ValidatorForm ref="form" onSubmit={this.handleSubmit}>
+                        &lt;TextValidator
+                            name="job"
+						    value={input.job}
+						    hintText='Job title, keywords or company'
+                            onChange={this.handleChange}
+
+                            data-toggle="tooltip" data-placement="top" title="Job title, Company, keyword"
+
+                            hintStyle={styles.hintStyle}
+                            floatingLabelText='Job'
+                            floatingLabelStyle={styles.floatingLabelStyle}
+                            floatingLabelFocusStyle={styles.floatingLabelFocusStyle}
+                            floatingLabelShrinkStyle = {styles.floatingLabelShrinkStyle}
+                            underlineStyle={styles.underlineStyle} 
+
+                            validators={['required']}
+                            errorMessages={['this field is required']}
+						    className='searchJob'
+                        />
+
+                        &lt;TextValidator
+                            name="location"
+                            value={input.location}
+			    			hintText='City or State'
+						    onChange={this.handleChange}
+
+                            data-toggle="tooltip" data-placement="top" title="Location for the Jobs"
+
+                            hintStyle={styles.hintStyle}
+						    floatingLabelText='Location'
+                            floatingLabelStyle={styles.floatingLabelStyle}
+                            floatingLabelFocusStyle={styles.floatingLabelFocusStyle}
+                            floatingLabelShrinkStyle = {styles.floatingLabelShrinkStyle}
+                            underlineStyle={styles.underlineStyle} 
+
+                            validators={['required']}
+                            errorMessages={['this field is required']}
+                            className='searchLocation'
+                        />
+
+                        &lt;FloatingActionButton 
+                        className='searchButton'
+                        onClick={this.getJobPostings}
+                        backgroundColor='#2196F3'
+                        data-toggle="tooltip" data-placement="bottom" title="Search for Jobs"
+                         >
+                            &lt;SearchIcon color={fullWhite}/>
+                        &lt;/FloatingActionButton>
+                        
+                    &lt;/ValidatorForm>
+
+				&lt;/div>
+				
+				&lt;div className="row col-md-12 searchPageResults" >
+                    
+                    { JobPostings }
+
+				&lt;/div>
+
+
+                &lt;Snackbar
+                className="text-center"
+                open={this.state.openSnackBar}
+                message={`Welcome ${this.state.username}`}
+                autoHideDuration={2000}
+                onRequestClose={this.handleRequestClose}
+                />
+			&lt;/div>
+		);
+	}
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#CrimeReport">CrimeReport</a></li><li><a href="global.html#Dashboard">Dashboard</a></li><li><a href="global.html#Error404">Error404</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#HouseListing">HouseListing</a></li><li><a href="global.html#JobInfo">JobInfo</a></li><li><a href="global.html#JobMap">JobMap</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#Logout">Logout</a></li><li><a href="global.html#NewsCarousel">NewsCarousel</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#Schools">Schools</a></li><li><a href="global.html#SignUp">SignUp</a></li><li><a href="global.html#WeatherAlerts">WeatherAlerts</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Tue May 16 2017 14:41:40 GMT-0400 (EDT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

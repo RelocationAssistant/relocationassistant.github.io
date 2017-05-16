@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: NewsCarousel.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: NewsCarousel.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React from 'react';
+import ReactDOM from 'react-dom';
+
+import axios from 'axios';
+
+import 'react-bootstrap-carousel/dist/bootstrap.min.css';
+import 'react-bootstrap-carousel/dist/react-bootstrap-carousel.css';
+import {React_Bootstrap_Carousel} from 'react-bootstrap-carousel';
+
+import Paper from 'material-ui/Paper'; 
+
+import CrimeNews from '../data/CrimeNews.json';
+
+
+/**
+ * News Component, 
+ * This component loads the news based on the job location on the Dashboard.
+*/
+export default class NewsCarousel extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            crimeNews: [],
+            jobDetails: this.props.JobDetails,
+		};
+    }
+
+    getNews=() => {
+        console.log('Geting News update...!');
+        console.log('jobDetails: ', this.state.jobDetails);
+
+
+        axios.get(`http://webhose.io/search?token=366c2ed6-382d-4c31-9999-6791dd7a2b18&amp;format=json&amp;q=(crime)%20thread.title%3A(${this.state.jobDetails.city})%20language%3A(english)%20thread.country%3AUS%20performance_score%3A%3E2%20(site_type%3Anews)&amp;ts=1491167401648`)
+        .then(response => {
+            console.log('SUCCESS', response);
+            this.setState({
+              crimeNews: response.data.posts,
+            });
+        })
+        .catch(error => {
+            console.log('Error fetching and parsing data', error);
+            alert('There was an error getting news updates. Please try again.')
+        });
+    }
+
+// http://webhose.io/search?token=366c2ed6-382d-4c31-9999-6791dd7a2b18&amp;format=json&amp;q=(crime)%20thread.title%3A(${this.state.Jobdetails.city})%20language%3A(english)%20thread.country%3AUS%20location%3A%22${this.state.Jobdetails.city}%22%20performance_score%3A%3E2%20(site_type%3Anews)&amp;ts=1491167401648
+
+    componentWillMount() { 
+      // this.setState({
+      //   jobDetails: this.props.JobDetails,
+      // });
+    }
+
+    componentDidMount() { 
+      this.getNews();
+    } 
+
+    onSelect= (active,direction)=>{
+        console.log(`active=${active} &amp;&amp; direction=${direction}`);
+    }
+    render() {
+
+      var news = &lt;div className="newsCarousel-main">
+              &lt;React_Bootstrap_Carousel
+                animation={true}
+                onSelect={this.onSelect}
+                className="carousel-fade"
+                slideshowSpeed={6000}
+                wrap={true}
+                leftImage="/Images/leftArrow.png"
+                rightImage="/Images/rightArrow.png"
+              >
+                {this.state.crimeNews.slice(0, 10).map( (row, index) => (
+                    &lt;div style={{height:"300px",width:"100%",backgroundColor:"#cccccc"}} key={index}>
+                        &lt;a target="_blank" href={row.thread.url} >&lt;span className="" >{row.thread.title}&lt;/span> &lt;/a>
+                        &lt;img className="carousel-image" src={row.thread.main_image} />
+                    &lt;/div>
+                ))}
+                
+              &lt;/React_Bootstrap_Carousel>
+            &lt;/div>;
+
+      if (this.state.crimeNews.length &lt; 1) {
+        news = &lt;div className="noNewsAvailable"> No News available for {this.props.JobDetails.formattedLocation} area.&lt;/div>
+      }
+
+      return(
+        &lt;div className="col-md-12 dashboard-component">
+          &lt;Paper className="CrimeNewsComponent dashboard-paper" zDepth={1}>
+            &lt;h3 className="dashboard-news-title">News for {this.props.JobDetails.formattedLocation}&lt;/h3>
+
+            {news}
+
+          &lt;/Paper> 
+        &lt;/div>
+      )
+    }
+};</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#CrimeReport">CrimeReport</a></li><li><a href="global.html#Dashboard">Dashboard</a></li><li><a href="global.html#Error404">Error404</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#HouseListing">HouseListing</a></li><li><a href="global.html#JobInfo">JobInfo</a></li><li><a href="global.html#JobMap">JobMap</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#Logout">Logout</a></li><li><a href="global.html#NewsCarousel">NewsCarousel</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#Schools">Schools</a></li><li><a href="global.html#SignUp">SignUp</a></li><li><a href="global.html#WeatherAlerts">WeatherAlerts</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Tue May 16 2017 14:41:40 GMT-0400 (EDT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

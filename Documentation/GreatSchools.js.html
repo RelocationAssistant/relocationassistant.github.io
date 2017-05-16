@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: GreatSchools.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: GreatSchools.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React from 'react';
+import ReactDOM from 'react-dom';
+
+// import SchoolsResult from '../data/greatSchools.json';
+
+import axios from 'axios';
+import cookie from 'react-cookie';
+
+import Paper from 'material-ui/Paper';
+import RaisedButton from 'material-ui/RaisedButton';
+import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
+
+/**
+ * Schools Component, 
+ * This Component gets the data form GreatSchools API based on the location of the job
+ */
+export default class Schools extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            schools: [],
+		};
+    }
+
+    getSchools=() => {
+        console.log('Geting Schools list...!');
+
+        var id = this.props.id;
+
+        console.log('ID: ', id); 
+
+        axios.get(`http://107.170.61.145/api/services/schools/search?state=${this.props.JobDetails.state}&amp;city=${this.props.JobDetails.city}&amp;limit=20`,{
+            auth: {
+                username: cookie.load('token'),
+                password: 'unused',
+            }
+        })
+        .then(response => {
+            console.log('Schools: ', response.data.schools.school);
+
+            this.setState({
+            schools: response.data.schools.school
+            });
+        })
+        .catch(error => {
+            console.log('Error fetching and parsing data', error);
+            // alert('There was an error processing your request. Please try again.')
+        });
+    }
+
+    componentWillMount() {
+        
+        this.getSchools();
+
+    }
+
+
+    render() {
+
+    var list = &lt;div>&lt;/div>
+
+    if (this.state.schools.length > 0){
+
+        list = this.state.schools.map((row, index) => (
+                                &lt;div key={index} style={{padding: "10px"}} className="col-md-12">
+                                
+                                &lt;Card>     
+                                    &lt;CardHeader
+                                    title={row.name}
+                                    subtitle={`${row.type} - ${row.gradeRange}.  Ratings: ${(row.gsRating == null) ? "NA" : row.gsRating+"/10" }  ${(row.phone == null) ? "" : "Phone: "+row.phone }` }
+                                    actAsExpander={true}
+                                    showExpandableButton={true}
+                                    className="dashboard-card dashboard-card-color"
+                                    />                               
+                                    &lt;CardActions className="dashboard-card-color">
+                                    {(row.website == null) ? &lt;RaisedButton className="dashboard-button-disabled" style={{backgroundColor: '#000 !important'}} label="Website not available" primary={true} fullWidth={true} /> : &lt;a target="_blank" href={(row.website.substr(0,4) == "http" || row.website.substr(0,3) == "www") ? row.website : `http://${row.website}`} >&lt;RaisedButton className="dashboard-button" label="School Website" primary={true} fullWidth={true} />&lt;/a>}
+                                    &lt;/CardActions>
+                                    &lt;CardText className="school-map dashboard-card-color" expandable={true}>
+                                        &lt;iframe src={`//www.google.com/maps/embed/v1/place?q=${row.lat},${row.lon}&amp;zoom=15&amp;key=AIzaSyAVCVopLFl_D5S0SRdTJme7Cb8pjrdpPUE`}
+                                        width = "100%" height = "100%" frameBorder="0"
+                                        >
+                                        &lt;/iframe>
+                                    &lt;/CardText>
+                                    
+                                &lt;/Card>
+                                &lt;/div>
+                        ));
+    }
+
+      return(
+        &lt;div className="col-md-12 dashboard-component">
+            &lt;div className="schools-main">
+            &lt;Paper className="dashboard-schools-component dashboard-paper" zDepth={1}>
+                &lt;h3 className="dashboard-schools-title"> Schools near this Job location: &lt;/h3>
+                &lt;div className="schoolResultComponent">
+                    
+                    {list}
+
+                &lt;/div>
+            &lt;/Paper>   
+            &lt;/div>
+        &lt;/div>
+      )
+    }
+};</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#CrimeReport">CrimeReport</a></li><li><a href="global.html#Dashboard">Dashboard</a></li><li><a href="global.html#Error404">Error404</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#HouseListing">HouseListing</a></li><li><a href="global.html#JobInfo">JobInfo</a></li><li><a href="global.html#JobMap">JobMap</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#Logout">Logout</a></li><li><a href="global.html#NewsCarousel">NewsCarousel</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#Schools">Schools</a></li><li><a href="global.html#SignUp">SignUp</a></li><li><a href="global.html#WeatherAlerts">WeatherAlerts</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Tue May 16 2017 14:41:40 GMT-0400 (EDT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

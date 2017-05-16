@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Logout.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Logout.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+
+
+import cookie from 'react-cookie';
+
+import { Redirect } from 'react-router-dom';
+
+// UI Components
+import Paper from 'material-ui/Paper';
+import getMuiTheme from 'material-ui/styles/getMuiTheme';
+
+import {orange500} from 'material-ui/styles/colors';
+import TextField from 'material-ui/TextField';
+import IconButton from 'material-ui/IconButton';
+
+import RaisedButton from 'material-ui/RaisedButton';
+import LoginIcon from 'material-ui/svg-icons/action/search';
+
+import { ValidatorForm, TextValidator} from 'react-material-ui-form-validator';
+
+
+const styles = {
+    hintStyle: {
+        fontSize: 16 
+    },
+    errorStyle: {
+        color: orange500,
+    },
+    underlineStyle: {
+        borderColor: orange500,
+    },
+};
+
+const btnSearch = {
+    margin: 1,
+};
+
+const paperLogin = {
+    height: 350,
+    width: 400,
+    margin: 5,
+    paddingLeft: 50,
+    paddingRight: 50,
+
+    textAlign: 'center',
+    display: 'inline-block',
+};
+
+const paperSignUp = {
+    width: 400,
+    padding: 5,
+    textAlign: 'center',
+    display: 'inline-block',
+};
+
+/**
+ * Logout Component, 
+ * used for signing out of the application.
+ * So that users can safely close the application 
+ * and prevent unauthorized use of account
+ */
+export default class Logout extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            user: {},
+            loggedOut: false,
+        };
+        this.handleChange = this.handleChange.bind(this);
+    }
+    
+    handleChange(event) {
+        const { user } = this.state;
+        user[event.target.name] = event.target.value;
+        this.setState({ user });
+    }
+     
+    logOutUser=() => {
+        // console.log('Logging out...');      
+       
+        cookie.remove('token', { path: '/' });
+        cookie.remove('username', { path: '/' });
+       
+        this.setState({
+            loggedOut: true,
+        });
+       
+    }
+
+    componentWillMount() {
+        if (cookie.load('token') == null) {
+            this.setState({
+            loggedOut: true,
+        });
+        }
+    }
+
+	// Used for Material-UI
+	static childContextTypes = {muiTheme: PropTypes.object}
+	getChildContext(){return {muiTheme: getMuiTheme()};}
+
+
+	render() {
+        
+        let button = null;
+            if (this.state.loggedOut == true) {
+            button = &lt;Redirect to="/login" />;
+            } else {
+            button = null;
+        }
+    
+        const { user } = this.state;
+		return (
+			&lt;div className='col-md-12 body-content'>
+
+                &lt;div className="ButtonToRedirect">{button}&lt;/div>
+
+                &lt;div className='loginContainer'>
+                    &lt;Paper style={paperSignUp} zDepth={1}
+                    data-toggle="tooltip" data-placement="bottom" title="Want to log-out ? ">
+                        
+                        &lt;RaisedButton
+                                label='Log out'
+                                labelColor='#fff'
+                                fullWidth={true}
+                                className='btnLogin'
+                                style={{marginTop: 0}}
+                                backgroundColor='#4885ed'
+                                onClick={this.logOutUser}
+                            />
+                        
+                    &lt;/Paper>
+				&lt;/div>
+
+				
+			&lt;/div>
+		);
+	}
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#CrimeReport">CrimeReport</a></li><li><a href="global.html#Dashboard">Dashboard</a></li><li><a href="global.html#Error404">Error404</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#HouseListing">HouseListing</a></li><li><a href="global.html#JobInfo">JobInfo</a></li><li><a href="global.html#JobMap">JobMap</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#Logout">Logout</a></li><li><a href="global.html#NewsCarousel">NewsCarousel</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#Schools">Schools</a></li><li><a href="global.html#SignUp">SignUp</a></li><li><a href="global.html#WeatherAlerts">WeatherAlerts</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Tue May 16 2017 14:41:40 GMT-0400 (EDT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: WeatherAlerts.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: WeatherAlerts.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React from 'react';
+import ReactDOM from 'react-dom';
+
+import axios from 'axios';
+
+import Paper from 'material-ui/Paper';
+// import RaisedButton from 'material-ui/RaisedButton';
+// import FlatButton from 'material-ui/FlatButton';
+import AlertIcon from 'material-ui/svg-icons/alert/warning';
+import SunIcon from 'material-ui/svg-icons/image/wb-sunny';
+
+/**
+ * Weather Alert Component, 
+ * This component loads the weather info of the Job location on the Dashboard.
+*/
+export default class WeatherAlerts extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            jobDetails: [],
+            weatherAlerts: [],
+            city: '',
+            state: '',
+            zip: '',
+		};
+    }
+    
+    getWeatherAlerts=() => {
+        console.log('Geting weather alerts...!');
+
+        // var id = this.props.id;
+
+        // console.log('ID: ', id); 
+
+        axios.get(`http://api.wunderground.com/api/b347f3770017c899/alerts/q/${this.props.JobDetails.state}/${this.props.JobDetails.city}.json`)
+        .then(response => {
+            console.log('SUCCESS', response);
+            this.setState({
+                weatherAlerts: response.data.alerts,
+            });
+        })
+        .catch(error => {
+            console.log('Error fetching and parsing data', error);
+            // alert('There was an error processing your request. Please try again.')
+        });
+    }
+
+    componentWillMount() {
+
+        this.getWeatherAlerts();
+
+        console.log('this.props.JobDetails.formattedLocationFull.length ', this.props.JobDetails.formattedLocationFull.length);
+        console.log('ZIP: ', this.props.JobDetails.formattedLocationFull.substr(this.props.JobDetails.formattedLocationFull.length - 5));
+
+		this.setState({
+			jobDetails: this.props.JobDetails,
+            city: this.props.JobDetails.city,
+            state: this.props.JobDetails.state,
+            zip: this.props.JobDetails.formattedLocationFull.substr(this.props.JobDetails.formattedLocationFull.length - 5)
+		});
+    }
+
+
+    render() {
+      return(
+        &lt;div className="col-md-12 dashboard-component">
+            &lt;Paper className="JobLocationWeatherAlertsComponent dashboard-paper" zDepth={1}> 
+                &lt;div className="col-md-6 ">               
+                    &lt;h3> Weather alerts for {this.state.jobDetails.formattedLocation}: &lt;/h3>
+                    &lt;div className="alertsList">
+                        &lt;span>
+                            {this.state.weatherAlerts[0] == null 
+                                ?                           
+                                &lt;div className="alert noWeatherAlert">&lt;SunIcon className="sun-icon pull-right"/> There is no weather alert for {this.state.jobDetails.formattedLocation}&lt;/div>
+                                :
+                                this.state.weatherAlerts.map( (row, index) => (
+                                &lt;span key={index}>
+                                &lt;h4 className="alert alert-danger">{row.description} &lt;AlertIcon className="alert-icon pull-right"/>&lt;/h4>
+                                &lt;span className="alertText" >From &lt;b>{row.date}&lt;/b> to &lt;b>{row.expires}&lt;/b>&lt;/span>
+                                &lt;/span>
+                                ))
+                            }
+                        &lt;/span>
+                    &lt;/div>
+                &lt;/div>
+
+                &lt;Paper zDepth={2} className="hidden-sm hidden-xs">
+                    &lt;div className="col-md-6">
+                        &lt;span className="wunderGroundWidget" >
+                            &lt;img className="wunderGroundWidgetImage" src={`http://weathersticker.wunderground.com/weathersticker/cgi-bin/banner/ban/wxBanner?bannertype=wu_blueglass&amp;airportcode=KSFO&amp;ForcedCity=${this.state.city}&amp;ForcedState=${this.state.state}&amp;language=EN`} />
+                        &lt;/span>
+                    &lt;/div>
+                &lt;/Paper>   
+            &lt;/Paper>   
+        &lt;/div>  
+      )
+    }
+};</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#CrimeReport">CrimeReport</a></li><li><a href="global.html#Dashboard">Dashboard</a></li><li><a href="global.html#Error404">Error404</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#HouseListing">HouseListing</a></li><li><a href="global.html#JobInfo">JobInfo</a></li><li><a href="global.html#JobMap">JobMap</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#Logout">Logout</a></li><li><a href="global.html#NewsCarousel">NewsCarousel</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#Schools">Schools</a></li><li><a href="global.html#SignUp">SignUp</a></li><li><a href="global.html#WeatherAlerts">WeatherAlerts</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Tue May 16 2017 14:41:40 GMT-0400 (EDT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

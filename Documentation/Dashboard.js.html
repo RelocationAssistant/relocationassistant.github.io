@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Dashboard.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Dashboard.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { Component } from 'react';
+
+import axios from 'axios';
+import cookie from 'react-cookie';
+
+// Load JSON Files
+// import JobDetails from '../data/IndeedJobDetails.json';
+//http://api.wunderground.com/api/b347f3770017c899/alerts/q/MO/Springfield.json
+import WeatherAlert from '../data/WeatherAlert.json';
+import CrimeData from '../data/CrimeData.json';
+import ZillowResult from '../data/ZillowSearchResult.json';
+// import SchoolsResult from '../data/greatSchools.json';
+
+import getMuiTheme from 'material-ui/styles/getMuiTheme';
+import Paper from 'material-ui/Paper';
+import FlatButton from 'material-ui/FlatButton';
+import RaisedButton from 'material-ui/RaisedButton';
+import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
+import CircularProgress from 'material-ui/CircularProgress';
+
+import { Redirect, Link } from 'react-router-dom';
+
+
+// Icons
+// import SunIcon from 'material-ui/svg-icons/image/wb-sunny';
+// import AlertIcon from 'material-ui/svg-icons/alert/warning';
+
+// Components
+import NewsCarousel from '../Components/NewsCarousel';
+import Schools from '../Components/GreatSchools';
+import JobInfo from '../Components/JobDetails';
+import JobMap from '../Components/JobLocationMap';
+import WeatherAlerts from '../Components/WeatherAlerts';
+import CrimeReport from '../Components/CrimeReport';
+import ZillowListing from '../Components/ZillowListing';
+
+/**
+ * Dashboard Component, 
+ * This components is the core component of the application.
+ * Components like: Zillow property info, Weather report,
+ * Schools, News, Crime are loaded within this Component.
+ */
+export default class Dashboard extends Component {
+
+    constructor() {
+		super();
+		this.state = {
+            jobDetails: [],
+		    jobKey: null,
+            date: "",
+            month: "",
+            year: "",
+            staticMapURL: "",
+            mapIframeURL: "",
+            weatherHistURL: "",
+            weatherAlert: [],
+            crimeNews: [],
+            crimeData: [],
+            crimeCount: {
+                bulgary: 0,
+                theft: 0,
+            },
+            zillowSearchResult: [],
+            latitude: 0,
+            longitude: 0,
+            notLoggedIn: false,
+		};
+	}
+    
+    // getData=() => {
+    // axios.get(`http://api.greatschools.org/schools/nearby?key=3tllya4sxpz8fuktdspscaxx&amp;address=160+Spear+St&amp;city=San+Francisco&amp;state=CA&amp;zip=94105&amp;schoolType=public-charter&amp;levelCode=elementary-schools&amp;radius=10&amp;limit=100`)
+    //   .then(response => {
+    //     console.log('XML: ', response);
+        
+
+    //   })
+    //   .catch(error => {
+    //     console.log('Error fetching and parsing data', error);
+    //   });
+    // }
+
+    // getHousePostings=() => {
+    //     console.log('Geting Data for House postings...!');
+        
+    //     var zipcode = "11419";
+    //     var address = "103-11 114 Street, Richmond Hill, NY";
+
+    //     axios.get(`http://107.170.61.145/api/services/indeed/search?zipcode=${zipcode}&amp;address=${address}`,{
+    //         auth: {
+    //             username: 'admin',
+    //             password: 'admin'
+    //         }
+    //     })
+    //     .then(response => {
+    //         console.log('SUCCESS - Zillow', response);
+    //         // this.setState({
+    //         // jobList: response.data.results,
+    //         // });
+    //     })
+    //     .catch(error => {
+    //         console.log('Error fetching and parsing data', error);
+    //         // alert('There was an error processing your request. Please try again.')
+    //     });
+    // }
+
+    getJobDetails=() => {
+        console.log('Geting Job detais...!');
+
+        var id = this.props.id;
+
+        console.log('ID: ', id); 
+
+        axios.get(`http://107.170.61.145//api/services/indeed/${this.props.id}`,{
+            auth: {
+                username: cookie.load('token'),
+                password: 'unused',
+            }
+        })
+        .then(response => {
+            console.log('SUCCESS', response);
+            this.setState({
+            jobDetails: response.data.results[0],
+            latitude: response.data.results[0].latitude,
+            longitude: response.data.results[0].longitude,
+            });
+        })
+        .catch(error => {
+            console.log('Error fetching and parsing data', error);
+            alert('There was an error processing your request. Please try again.')
+        });
+    }
+    
+
+
+    componentWillMount() {
+
+
+        // this.getHousePostings();
+
+        if (cookie.load('token') == null) {
+            this.setState({
+                notLoggedIn: true,
+            })
+        }
+
+        else {
+        
+            this.getJobDetails();
+
+            // test
+            // this.getData()
+
+            var today = new Date();
+            var dd = today.getDate();
+            var mm = today.getMonth()+1;
+            var yyyy = today.getFullYear();
+            var radius = 0.01;
+            // var lat = JobDetails.results[0].latitude;
+            // var lon = JobDetails.results[0].longitude;
+            var totalBurglary = 0;
+            var totalTheft = 0;
+
+            this.setState({			
+                weatherAlert: WeatherAlert.alerts,
+                crimeData: CrimeData.crimes,
+                zillowSearchResult: ZillowResult.regionchildren.response,
+                date: dd,
+                month: mm,
+                year: yyyy,
+            });
+            
+            CrimeData.crimes.forEach((row)=>{
+                if (row.type == "Burglary") {
+                    totalBurglary += 1;
+                }
+                else if (row.type == "Theft") {
+                    totalTheft += 1;
+                }
+            })
+
+            this.setState({
+                crimeCount: {
+                            burglary: totalBurglary,
+                            theft: totalTheft
+                            }
+            });
+
+        // http://api.spotcrime.com/crimes.json?lat=30.395605&amp;lon=-97.74725&amp;key=privatekeyforspotcrimepublicusers-commercialuse-877.410.1607&amp;radius=0.01
+
+        console.log('Lat: ', this.state.jobDetails.latitude);
+        
+        }
+ 
+	}
+
+    componentDidMount() {
+        this.setState({
+            staticMapURL: `http://maps.googleapis.com/maps/api/staticmap?zoom=12&amp;size=600x300&amp;maptype=roadmap&amp;markers=${this.state.jobDetails.latitude},${this.state.jobDetails.longitude}`,
+            weatherHistURL: `https://www.wunderground.com/cgi-bin/histGraphAll?day=${this.state.date}&amp;year=${this.state.year - 1}&amp;month=${this.state.month}&amp;dayend=${this.state.date}&amp;yearend=${this.state.year}&amp;monthend=${this.state.month}&amp;ID=KORD&amp;type=6&amp;width=600`,
+		});
+
+        this.attachTooltip();
+    }
+
+    componentDidUpdate() {
+        this.attachTooltip();
+    }
+
+    attachTooltip = () => {
+    // $(this.refs.data).tooltip();
+    $('[title]').tooltip()    
+    }
+
+    // Used for Material-UI
+	static childContextTypes = {muiTheme: React.PropTypes.object}
+	getChildContext(){return {muiTheme: getMuiTheme()}}
+
+    render() {
+
+
+        var notLoggedInButton = null;
+        if (this.state.notLoggedIn) {
+            notLoggedInButton = &lt;Redirect to="/Login" />;
+        }    
+
+
+        var jobPosting = &lt;div className="loadingDiv">&lt;CircularProgress size={80} thickness={5} />&lt;/div>;
+        if (this.state.latitude != 0) {
+            jobPosting = &lt;JobInfo id={this.props.id}/>;
+        }
+
+        var mainMap = &lt;div className="loadingDiv">&lt;CircularProgress size={80} thickness={5} />&lt;/div>;
+        if (this.state.latitude != 0) {
+            mainMap = &lt;JobMap latitude={this.state.latitude} longitude={this.state.longitude} />;
+        }
+
+        var alerts = &lt;div className="loadingDiv">&lt;CircularProgress size={80} thickness={5} />&lt;/div>;
+        if (this.state.jobDetails.city != null) {
+            alerts = &lt;WeatherAlerts JobDetails={this.state.jobDetails} weatherAlert={this.state.weatherAlert}/>;
+        }
+
+        var news = &lt;div className="loadingDiv">&lt;CircularProgress size={80} thickness={5} />&lt;/div>;
+        if (this.state.jobDetails.city != null) {
+            news = &lt;NewsCarousel JobDetails={this.state.jobDetails} />;
+        }
+
+        // var crimeReport = &lt;div className="loadingDiv">&lt;CircularProgress size={80} thickness={5} />&lt;/div>;
+        // if (this.state.jobDetails.city != null) {
+        //     crimeReport = &lt;CrimeReport crimeCount={this.state.crimeCount} crimeData={this.state.crimeData} JobDetails={this.state.jobDetails}/>;
+        // }
+
+        var zillowListings = &lt;div className="loadingDiv">&lt;CircularProgress size={80} thickness={5} />&lt;/div>;
+        if (this.state.jobDetails.city != null) {
+            zillowListings = &lt;ZillowListing JobDetails={this.state.jobDetails}  zillowSearchResult={this.state.zillowSearchResult}/>;
+        }
+
+        var schoolListing = &lt;div className="loadingDiv">&lt;CircularProgress size={80} thickness={5} />&lt;/div>;
+        if (this.state.jobDetails.city != null) {
+            schoolListing = &lt;Schools JobDetails={this.state.jobDetails}/>;
+        }
+
+        return (
+            &lt;div className="dashboard" >
+                &lt;div className="col-md-12 body-content">
+
+                    &lt;div className="ButtonToRedirect">{notLoggedInButton}&lt;/div>
+
+                    &lt;div className="col-md-6 vertical-grid" >
+
+                        {jobPosting}
+
+                        {mainMap}
+
+                        {alerts}
+                    
+                        {news}
+
+                    &lt;/div>
+
+                    &lt;div className="col-md-6 vertical-grid">
+
+                        {zillowListings}
+                        
+                        {schoolListing}
+
+                    &lt;/div>
+
+                &lt;/div>
+            &lt;/div>
+        );
+    }
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#CrimeReport">CrimeReport</a></li><li><a href="global.html#Dashboard">Dashboard</a></li><li><a href="global.html#Error404">Error404</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#HouseListing">HouseListing</a></li><li><a href="global.html#JobInfo">JobInfo</a></li><li><a href="global.html#JobMap">JobMap</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#Logout">Logout</a></li><li><a href="global.html#NewsCarousel">NewsCarousel</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#Schools">Schools</a></li><li><a href="global.html#SignUp">SignUp</a></li><li><a href="global.html#WeatherAlerts">WeatherAlerts</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Tue May 16 2017 14:41:40 GMT-0400 (EDT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

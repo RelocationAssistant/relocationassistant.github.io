@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Home</title>
+    <title>JSDoc: Source: CrimeReport.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,32 +17,55 @@
 
 <div id="main">
 
-    <h1 class="page-title">Home</h1>
+    <h1 class="page-title">Source: CrimeReport.js</h1>
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React from 'react';
+import ReactDOM from 'react-dom';
+
+import Paper from 'material-ui/Paper';
+
+/**
+ * Crime Report Component, 
+ * This components get the crime data based on the location of the job.
+ */
+export default class CrimeReport extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            jobDetails: [],
+		};
+    }
+
+    componentWillMount() {
+
+		this.setState({
+			jobDetails: this.props.JobDetails,
+		});
+    }
 
 
-    <h3> </h3>
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
+    render() {
+      return(
+        &lt;div className="col-md-12 dashboard-component">
+            &lt;Paper className="CrimeDataComponent dashboard-paper" zDepth={1}
+            data-toggle="tooltip" data-placement="bottom" title={`Crime report for this location`}>
+                &lt;h3>Crime Report for {this.state.jobDetails.formattedLocation} &lt;/h3>
+                &lt;h4>There are {this.props.crimeData.length} reported Crime Incidents in {this.state.jobDetails.formattedLocation} area.&lt;/h4>
+                &lt;h4>With {this.props.crimeCount.burglary} related to Burglary and {this.props.crimeCount.theft} to theft&lt;/h4>
+            &lt;/Paper> 
+        &lt;/div>
+      )
+    }
+};</code></pre>
+        </article>
+    </section>
 
 
 

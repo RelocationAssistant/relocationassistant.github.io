@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Signup.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Signup.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+
+import axios from 'axios';
+
+import { Redirect } from 'react-router-dom';
+
+// UI Components
+import Paper from 'material-ui/Paper';
+import getMuiTheme from 'material-ui/styles/getMuiTheme'
+
+import {red900, green900, blue900, orange500, green500, blue500} from 'material-ui/styles/colors';
+import TextField from 'material-ui/TextField';
+import IconButton from 'material-ui/IconButton';
+
+import RaisedButton from 'material-ui/RaisedButton';
+import {fullWhite} from 'material-ui/styles/colors';
+import LoginIcon from 'material-ui/svg-icons/action/search';
+import ActionAndroid from 'material-ui/svg-icons/action/android';
+import FontIcon from 'material-ui/FontIcon';
+
+
+import { ValidatorForm, TextValidator} from 'react-material-ui-form-validator';
+
+
+
+const styles = {
+    hintStyle: {
+        fontSize: 16 
+    },
+    errorStyle: {
+        color: orange500,
+    },
+    underlineStyle: {
+        borderColor: orange500,
+    },
+};
+
+const btnSearch = {
+    margin: 1,
+};
+
+const paperLogin = {
+    width: 500,
+    padding: 20,
+    margin: 0,
+    paddingLeft: 50,
+    paddingRight: 50,
+
+    textAlign: 'center',
+    display: 'inline-block',
+};
+
+const renderTextField = props => (
+  &lt;TextField hintText={props.label}
+    floatingLabelText={props.label}
+    errorText={props.touched &amp;&amp; props.error}
+    {...props}
+  />
+);
+
+/**
+ * Sign up Component, 
+ * This component lets the users to create new account in the application
+*/
+export default class SignUp extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            user: {
+                username: "",
+                first_name: "",
+                password: "",
+                last_name: "",
+            },
+            userCreated: false,
+        };
+        this.handleChange = this.handleChange.bind(this);
+    }
+
+    createUser=() => {
+        console.log('Started...!');
+        
+        axios.post(`http://107.170.61.145/api/users/`,
+            {
+            "username": this.state.user.username,
+            "first_name": this.state.user.first_name,
+            "password": this.state.user.password,
+            "last_name": this.state.user.last_name
+        })
+        .then(response => {
+            console.log('SUCCESS', response);
+            console.log('Done!');
+            alert(`Welcome to Relocation Assistant, ${this.state.user.first_name}. Your account has been created.`)
+            this.setState({
+                userCreated: true,
+            });
+        })
+        .catch(error => {
+            console.log('Error fetching and parsing data', error);
+            alert('There was an error processing your request. Please try again with different username.')
+        });
+    }
+
+
+    componentWillMount() {
+        // custom rule will have name 'isPasswordMatch' 
+        ValidatorForm.addValidationRule('isPasswordMatch', (value) => {
+            if (value !== this.state.user.password) {
+                return false;
+            }
+            return true;
+        });
+    }
+
+    handleChange(event) {
+        const { user } = this.state;
+        user[event.target.name] = event.target.value;
+        this.setState({ user });
+    }
+     
+    handleSubmit() {
+        this.createUser();
+        // your submit logic 
+    }
+
+
+	// Used for Material-UI
+	static childContextTypes = {muiTheme: PropTypes.object}
+	getChildContext(){return {muiTheme: getMuiTheme()}}
+
+
+	render() {
+        
+        let button = null;
+        if (this.state.userCreated == true) {
+        button = &lt;Redirect to="/" />;
+        } else {
+        button = null;
+        }
+
+        const { user } = this.state;
+		return (
+			&lt;div className='col-md-12 body-content'>
+                
+                &lt;div className="ButtonToRedirect">{button}&lt;/div>
+
+				&lt;div className='loginContainer'>
+                    &lt;Paper style={paperLogin} zDepth={1}>
+                    &lt;h1>Sign Up&lt;/h1>
+                        
+                    &lt;ValidatorForm ref="form" onSubmit={this.handleSubmit.bind(this)}>
+
+                        &lt;TextValidator
+                            floatingLabelText="First Name"
+                            name="first_name"
+                            //hintText='First Name'
+                            onChange={this.handleChange}
+                            value={user.first_name}
+                            validators={['required']}
+                            errorMessages={['This field is required']}
+                            className='loginTextField'
+                        />
+
+                        &lt;TextValidator
+                            floatingLabelText="Last Name"
+                            //hintText='Last Name'
+                            name="last_name"
+                            onChange={this.handleChange}
+                            value={user.last_name}
+                            validators={['required']}
+                            errorMessages={['This field is required']}
+                            className='loginTextField'
+                        />
+
+                        &lt;TextValidator
+                            floatingLabelText="Email/Username"
+                            //hintText='Email'
+                            name="username"
+                            onChange={this.handleChange}
+                            value={user.username}
+                            validators={['required' ]}
+                            errorMessages={['This field is required']}
+                            className='loginTextField'
+                        />
+
+                        &lt;TextValidator
+                            floatingLabelText="Password"
+                            //hintText='Password'
+                            name="password"
+                            onChange={this.handleChange}
+                            type="password"
+                            value={user.password}
+                            validators={['required']}
+                            errorMessages={['This field is required']}
+                            className='loginTextField'
+                        />
+                        &lt;TextValidator
+                            floatingLabelText="Confirm Password"
+                            //hintText='One more time'
+                            onChange={this.handleChange}
+                            name="repeatPassword"
+                            type="password"
+                            value={user.repeatPassword}
+                            validators={['isPasswordMatch', 'required']}
+                            errorMessages={['Password mismatch', 'This field is required']}
+                            className='loginTextField'
+                        />
+
+                        &lt;RaisedButton
+                            name='btnSignup'
+                            type="submit"
+                            label='Create Account'
+                            labelColor='#fff'
+                            fullWidth={true}
+                            className='btnLogin'
+                            backgroundColor='#4885ed'
+                        />
+                    &lt;/ValidatorForm>
+                    &lt;/Paper>
+				&lt;/div>
+			&lt;/div>
+		);
+	}
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#CrimeReport">CrimeReport</a></li><li><a href="global.html#Dashboard">Dashboard</a></li><li><a href="global.html#Error404">Error404</a></li><li><a href="global.html#Home">Home</a></li><li><a href="global.html#HouseListing">HouseListing</a></li><li><a href="global.html#JobInfo">JobInfo</a></li><li><a href="global.html#JobMap">JobMap</a></li><li><a href="global.html#Login">Login</a></li><li><a href="global.html#Logout">Logout</a></li><li><a href="global.html#NewsCarousel">NewsCarousel</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#Schools">Schools</a></li><li><a href="global.html#SignUp">SignUp</a></li><li><a href="global.html#WeatherAlerts">WeatherAlerts</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Tue May 16 2017 14:41:40 GMT-0400 (EDT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
