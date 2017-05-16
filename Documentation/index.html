@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Home</title>
+    <title>JSDoc: Source: App.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,32 +17,155 @@
 
 <div id="main">
 
-    <h1 class="page-title">Home</h1>
+    <h1 class="page-title">Source: App.js</h1>
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { Component } from 'react';
+
+import { Redirect, Link } from 'react-router-dom';
+import {browserHistory} from 'react-router';
+import PropTypes from 'prop-types';
+
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import getMuiTheme from 'material-ui/styles/getMuiTheme'
+import MenuItem from 'material-ui/MenuItem';
+import AppBar from 'material-ui/AppBar';
+import Drawer from 'material-ui/Drawer';
+import {lightBlue800} from 'material-ui/styles/colors';
+import IconButton from 'material-ui/IconButton';
+import NavigationClose from 'material-ui/svg-icons/navigation/close';
+import MenuIcon from 'material-ui/svg-icons/navigation/menu';
+import FlatButton from 'material-ui/FlatButton';
+import LockIcon from 'material-ui/svg-icons/action/lock';
+
+const muiTheme=getMuiTheme({
+  palette: {
+    primary1Color: lightBlue800,
+  },
+  appBar: {
+    height: 70,
+  },
+});
+
+/**
+ * App Component (Main Parent Component), 
+ * It is the parent component of the application.
+ * It comtains the Menu and Drawer component 
+ * and the rest of the components are loaded within this component
+ */
+export default class App extends Component {
+
+  constructor() {
+    super();
+    this.state={
+    };
+  }
+
+  handleToggle=() => this.setState({open: !this.state.open});
+  handleClose=() => this.setState({open: false});
 
 
-    <h3> </h3>
+  static childContextTypes =
+  {
+      muiTheme: PropTypes.object
+  }
+
+  getChildContext()
+  {
+      return {
+          muiTheme: getMuiTheme()
+      }
+  }
+
+    componentDidMount() {
+     
+        this.attachTooltip();
+    }
+
+    componentDidUpdate() {
+        this.attachTooltip();
+    }
+
+    attachTooltip = () => {
+    // $(this.refs.data).tooltip();
+    $('[title]').tooltip()    
+    }
 
 
 
+  render() {
 
+    return (
+      &lt;div className="container">        
+        &lt;MuiThemeProvider muiTheme={getMuiTheme(muiTheme)}>
+          &lt;AppBar
+            className="AppBar"
+            iconElementLeft={&lt;div>
+              &lt;FlatButton
+                icon={&lt;MenuIcon className="MenuIcon" />}
+                onTouchTap={this.handleToggle}
+                data-toggle="tooltip" data-placement="bottom" title="Menu"
+              />
+              &lt;Link to="/">
+                &lt;FlatButton 
+                    label="Relocation Assistant" 
+                    className="AppBarTitle"
+                />
+              &lt;/Link>
+              &lt;/div>
+            }
+                
+            iconElementRight={
+                &lt;div>
+                    &lt;Link to="/login">
+                        &lt;IconButton data-toggle="tooltip" data-placement="left" title="Sign in"> &lt;LockIcon /> &lt;/IconButton>
+                    &lt;/Link>
+                &lt;/div>
+            }
+          />
+        &lt;/MuiThemeProvider>
 
+        &lt;MuiThemeProvider muiTheme={getMuiTheme(muiTheme)}>
+          &lt;Drawer
+            className="MainDrawer"
+            docked={false}
+            width={250}
+            open={this.state.open}
+            onRequestChange={(open) => this.setState({open})}
+          >
+            &lt;AppBar title="Menu"
+              onLeftIconButtonTouchTap={this.handleToggle}
+              iconElementLeft={&lt;IconButton
+                                data-toggle="tooltip" data-placement="bottom" title="Close Menu"
+                                >&lt;NavigationClose />
+                               &lt;/IconButton>}
+            />
 
+            &lt;Link to="/" >
+              &lt;MenuItem onTouchTap={this.handleClose}>Home&lt;/MenuItem>
+            &lt;/Link>
 
+            &lt;Link to="/profile" >
+              &lt;MenuItem onTouchTap={this.handleClose}>Profile&lt;/MenuItem>
+            &lt;/Link>
 
+           
 
-
-    
-
-
-
-
-
+          &lt;/Drawer>
+        &lt;/MuiThemeProvider>
+      &lt;/div>
+    );
+  }
+}
+</code></pre>
+        </article>
+    </section>
 
 
 
