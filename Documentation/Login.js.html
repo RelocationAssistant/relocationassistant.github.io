@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Login.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Login.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+
+import axios from 'axios';
+
+import cookie from 'react-cookie';
+
+import { Redirect, Link } from 'react-router-dom';
+
+// UI Components
+import Paper from 'material-ui/Paper';
+import getMuiTheme from 'material-ui/styles/getMuiTheme';
+
+import { red900, green900, blue900, orange500, green500, blue500 } from 'material-ui/styles/colors';
+import TextField from 'material-ui/TextField';
+import IconButton from 'material-ui/IconButton';
+
+import RaisedButton from 'material-ui/RaisedButton';
+import { fullWhite } from 'material-ui/styles/colors';
+import LoginIcon from 'material-ui/svg-icons/action/search';
+import ActionAndroid from 'material-ui/svg-icons/action/android';
+import FontIcon from 'material-ui/FontIcon';
+
+import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
+
+// Define Styles for elements
+const styles = {
+    hintStyle: {
+        fontSize: 16
+    },
+    errorStyle: {
+        color: orange500,
+    },
+    underlineStyle: {
+        borderColor: orange500,
+    },
+};
+
+const btnSearch = {
+    margin: 1,
+};
+
+const paperLogin = {
+    height: 400,
+    width: 400,
+    margin: 5,
+    paddingLeft: 50,
+    paddingRight: 50,
+
+    textAlign: 'center',
+    display: 'inline-block',
+};
+
+const paperSignUp = {
+    width: 400,
+    padding: 5,
+    textAlign: 'center',
+    display: 'inline-block',
+};
+
+/**
+ * Login Component, 
+ * used for signing into the application.
+ * @namespace Components
+ * @memberof src.Components
+ */
+export default class Search extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            user: {},
+            userVerified: false,
+            loggedIn: false,
+        };
+        this.handleChange = this.handleChange.bind(this);
+    }
+
+    handleChange(event) {
+        const { user } = this.state;
+        user[event.target.name] = event.target.value;
+        this.setState({ user });
+    }
+
+    /**
+     * Function to Verify the User Credentials 
+     * @memberof src.Components.Login
+     */
+    verifyUser = () => {
+        // console.log('Verifying and getting token...!');
+
+        axios.get(`http://107.170.61.145/api/users/token`, {
+            auth: {
+                username: this.state.user.username,
+                password: this.state.user.password,
+            }
+        })
+        .then(response => {
+            // console.log('SUCCESS', response);
+            // console.log('Token: ', response.data.token);
+            // alert(`Welcome ${this.state.user.first_name}.`)
+
+            cookie.save('token', response.data.token, { path: '/' });
+            cookie.save('username', this.state.user.username, { path: '/' });
+            cookie.save('user_id', response.data.user_id, { path: '/' });
+
+            this.setState({
+                userVerified: true,
+            });
+        })
+        .catch(error => {
+            // console.log('Error fetching and parsing data', error);
+            alert('Incorrect username or password.');
+        });
+    }
+
+    handleSubmit() {
+        this.verifyUser();
+    }
+
+    componentWillMount() {
+        if (cookie.load('token') != null) {
+            this.setState({
+                loggedIn: true,
+            });
+        }
+    }
+
+    /**
+     * Used for Material-UI
+     */
+    static childContextTypes = { muiTheme: PropTypes.object }
+    getChildContext() { return { muiTheme: getMuiTheme() }; }
+
+
+    /**
+     * Render Function to render the component to DOM
+     * @memberof src.Components.Login
+     */
+    render() {
+
+        let button = null;
+        if (this.state.userVerified == true) {
+            button = &lt;Redirect to="/" />;
+        } else {
+            button = null;
+        }
+
+        if (this.state.loggedIn == true) {
+            button = &lt;Redirect to="/logout" />;
+        }
+
+        const { user } = this.state;
+        return (
+            &lt;div className='col-md-12 body-content'>
+
+                &lt;div className="ButtonToRedirect">{button}&lt;/div>
+
+                &lt;div className='loginContainer'>
+                    &lt;Paper style={paperSignUp} zDepth={1}
+                        data-toggle="tooltip" data-placement="bottom" title="Don't have an account with us? Sign up, it's free! ">
+                        &lt;Link to="/signup">
+                            &lt;RaisedButton
+                                label='Sign up'
+                                labelColor='#fff'
+                                fullWidth={true}
+                                className='btnLogin'
+                                style={{ marginTop: 0 }}
+                                backgroundColor='#4885ed'
+                            />
+                        &lt;/Link>
+                    &lt;/Paper>
+                &lt;/div>
+
+                &lt;div className='loginContainer'>
+                    &lt;Paper style={paperLogin} zDepth={1}>
+                        &lt;h1>SIGN IN&lt;/h1>
+
+                        &lt;ValidatorForm ref={'form'} onSubmit={this.handleSubmit.bind(this)}>
+
+                            &lt;TextValidator
+                                floatingLabelText="Username"
+                                //hintText="Username"
+                                onChange={this.handleChange}
+                                name="username"
+                                value={user.username}
+                                validators={['required']}
+                                errorMessages={['this field is required', 'password is not currect']}
+
+                                className='loginTextField'
+                            />
+
+                            &lt;TextValidator
+                                floatingLabelText="Password"
+                                //hintText='Password'
+                                onChange={this.handleChange}
+                                name="password"
+                                type="password"
+                                value={user.password}
+                                validators={['required']}
+                                errorMessages={['this field is required', 'password is not currect']}
+                                className='loginTextField'
+                            />
+
+                            &lt;RaisedButton
+                                name='btnLogin'
+                                type="submit"
+                                label='Sign In'
+                                labelColor='#fff'
+                                fullWidth={true}
+                                className='btnLogin'
+                                backgroundColor='#4885ed'
+                            />
+                        &lt;/ValidatorForm>
+
+                    &lt;/Paper>
+                &lt;/div>
+            &lt;/div>
+        );
+    }
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="src.Components.Components.html">Components</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Tue May 16 2017 13:56:45 GMT-0400 (EDT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
